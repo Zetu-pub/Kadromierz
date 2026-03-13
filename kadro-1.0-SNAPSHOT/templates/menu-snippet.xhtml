@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="primefaces">
+
+    <p:menubar>
+
+        <p:menuitem value="#{msg['menu.start']}" outcome="/public/index" />
+
+        <p:menuitem value="#{msg['menu.myShift']}"
+                    outcome="/pages/employee/clock"
+                    rendered="#{not empty remoteClient.details and remoteClient.details.role eq 'employee'}"/>
+        <p:menuitem value="#{msg['emp.summary.title']}"
+            outcome="/pages/employee/summary"
+            rendered="#{not empty remoteClient.details and remoteClient.details.role eq 'employee'}"/>
+
+
+        <p:menuitem value="#{msg['menu.allShifts']}"
+                    outcome="/pages/mod/shifts"
+                    rendered="#{not empty remoteClient.details and remoteClient.details.role eq 'moderator'}"/>
+
+        <p:menuitem value="#{msg['menu.hoursSummary']}"
+                    outcome="/pages/mod/summary"
+                    rendered="#{not empty remoteClient.details and remoteClient.details.role eq 'moderator'}"/>
+
+        <p:submenu label="#{msg['menu.admin']}"
+                   rendered="#{not empty remoteClient.details and remoteClient.details.role eq 'admin'}">
+
+            <p:menuitem value="#{msg['menu.usersRoles']}"
+                        outcome="/pages/admin/roles"
+                        icon="pi pi-users"/>
+
+        </p:submenu>
+
+    </p:menubar>
+
+</ui:composition>

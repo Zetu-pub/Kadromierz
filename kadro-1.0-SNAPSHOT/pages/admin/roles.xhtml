@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/main-template.xhtml">
+
+    <ui:define name="title">#{msg['admin.roles.title']}</ui:define>
+
+    <ui:define name="content">
+        <div class="surface-card p-4 border-round-2xl shadow-2">
+
+            <h2 style="margin-top:0;">#{msg['admin.roles.title']}</h2>
+
+            <h:form id="msgForm">
+                <p:messages id="msgs" showDetail="true" closable="true"/>
+            </h:form>
+
+            <div class="surface-card p-3 border-round-xl" style="margin-top:14px;">
+                <h3 style="margin-top:0;">#{msg['admin.roles.add.title']}</h3>
+
+                <h:form id="addForm">
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <h:outputLabel value="#{msg['common.username']}" />
+                            <!-- USUNIĘTE required="true" żeby nie wyskakiwało Validation Error -->
+                            <p:inputText value="#{adminBB.newUsername}"
+                                         style="width:100%; margin-top:6px;" />
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <h:outputLabel value="#{msg['common.password']}" />
+                            <!-- USUNIĘTE required="true" żeby nie wyskakiwało Validation Error -->
+                            <p:password value="#{adminBB.newPassword}" feedback="false"
+                                        style="width:100%; margin-top:6px;" />
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <h:outputLabel value="#{msg['common.role']}" />
+                            <p:selectOneMenu value="#{adminBB.newRole}" style="width:100%; margin-top:6px;">
+                                <f:selectItem itemLabel="#{msg['role.employee']}" itemValue="employee" />
+                                <f:selectItem itemLabel="#{msg['role.moderator']}" itemValue="moderator" />
+                                <f:selectItem itemLabel="#{msg['role.admin']}" itemValue="admin" />
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="col-12 md:col-6" style="display:flex;align-items:flex-end;">
+                            <p:commandButton value="#{msg['admin.roles.add.button']}"
+                                             action="#{adminBB.addUser}"
+                                             update=":msgForm:msgs addForm rolesForm"
+                                             icon="pi pi-user-plus"
+                                             style="width:100%;"/>
+                        </div>
+                    </div>
+                </h:form>
+            </div>
+
+            <h:form id="rolesForm">
+                <p:dataTable value="#{adminBB.users}" var="u"
+                             rowKey="#{u.id}"
+                             emptyMessage="#{msg['admin.roles.empty']}"
+                             paginator="true" rows="10"
+                             style="width:100%; margin-top:18px;">
+
+                    <p:column headerText="#{msg['common.id']}" style="width:80px;">
+                        #{u.id}
+                    </p:column>
+
+                    <p:column headerText="#{msg['common.username']}">
+                        #{u.username}
+                    </p:column>
+
+                    <p:column headerText="#{msg['common.role']}" style="width:220px;">
+                        <p:selectOneMenu value="#{u.role}" style="width:100%;">
+                            <f:selectItem itemLabel="#{msg['role.employee']}" itemValue="employee" />
+                            <f:selectItem itemLabel="#{msg['role.moderator']}" itemValue="moderator" />
+                            <f:selectItem itemLabel="#{msg['role.admin']}" itemValue="admin" />
+                        </p:selectOneMenu>
+                    </p:column>
+
+                    <p:column headerText="#{msg['admin.roles.status']}" style="width:160px;">
+                        <h:outputText value="#{u.blocked ? msg['admin.roles.blocked'] : msg['admin.roles.active']}"
+                                      style="#{u.blocked ? 'font-weight:700;color:#b91c1c' : 'font-weight:700;color:#15803d'}"/>
+                    </p:column>
+
+                    <p:column headerText="#{msg['common.actions']}" style="width:360px; white-space:nowrap;">
+
+                        <p:commandButton value="#{msg['common.save']}"
+                                         action="#{adminBB.saveRole(u)}"
+                                         update=":msgForm:msgs rolesForm"
+                                         icon="pi pi-save"/>
+
+                        <p:commandButton value="#{u.blocked ? msg['admin.roles.unblock'] : msg['admin.roles.block']}"
+                                         icon="#{u.blocked ? 'pi pi-lock-open' : 'pi pi-lock'}"
+                                         styleClass="ui-button-outlined"
+                                         action="#{adminBB.toggleBlocked(u)}"
+                                         update=":msgForm:msgs rolesForm"
+                                         style="margin-left:8px;"/>
+
+                        <p:commandButton value="#{msg['common.delete']}"
+                                         icon="pi pi-trash"
+                                         styleClass="ui-button-danger"
+                                         action="#{adminBB.deleteUser(u)}"
+                                         update=":msgForm:msgs rolesForm addForm"
+                                         onclick="return confirm('#{msg['admin.roles.deleteConfirm']} #{u.username}?');"
+                                         style="margin-left:8px;"/>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+
+        </div>
+    </ui:define>
+
+</ui:composition>

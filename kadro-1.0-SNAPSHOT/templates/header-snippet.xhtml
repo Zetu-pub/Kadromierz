@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="primefaces">
+
+    <div class="app-header" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div class="app-brand" style="display:flex;align-items:center;gap:14px;">
+            <h:graphicImage library="template" name="img/logo1.jpg"
+                            alt="logo" styleClass="app-logo" style="max-height:58px;border-radius:10px;"/>
+            <div class="app-title">
+                <div class="app-name">Kadromierz</div>
+                <div class="app-sub">#{msg['app.subtitle']}</div>
+            </div>
+        </div>
+
+        <h:form styleClass="app-auth" style="display:flex;align-items:center;gap:10px;">
+
+            <!-- Language switch -->
+            <p:selectOneButton value="#{localeBB.lang}">
+                <f:selectItem itemLabel="#{msg['lang.pl']}" itemValue="pl"/>
+                <f:selectItem itemLabel="#{msg['lang.en']}" itemValue="en"/>
+                <p:ajax listener="#{localeBB.changeLang}" update="@all"/>
+            </p:selectOneButton>
+
+            <p:spacer width="6"/>
+
+            <!-- niezalogowany -->
+            <p:button value="#{msg['auth.login']}" outcome="/pages/login"
+                      rendered="#{empty remoteClient.details}" />
+
+            <!-- zalogowany -->
+            <h:panelGroup rendered="#{not empty remoteClient.details}">
+                <span class="app-user" style="margin-right:10px;">
+                    #{msg['auth.loggedAs']}: <b>#{remoteClient.details.accName}</b>
+                </span>
+                <p:commandButton value="#{msg['auth.logout']}" action="#{loginBB.doLogout}" ajax="false"/>
+            </h:panelGroup>
+
+        </h:form>
+    </div>
+
+</ui:composition>

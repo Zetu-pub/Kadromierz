@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/main-template.xhtml">
+
+    <ui:define name="title">#{msg['mod.summary.title']}</ui:define>
+
+    <ui:define name="content">
+        <h2>#{msg['mod.summary.title']}</h2>
+
+        <!-- Bez uprawnień -->
+        <h:panelGroup rendered="#{not empty remoteClient.details and remoteClient.details.role ne 'moderator'}">
+            <div style="padding:12px;border:1px solid #fca5a5;border-radius:12px;background:#fee2e2;">
+                #{msg['mod.noPermission']}
+            </div>
+        </h:panelGroup>
+
+        <!-- Moderator -->
+        <h:panelGroup rendered="#{not empty remoteClient.details and remoteClient.details.role eq 'moderator'}">
+
+            <h:form id="filterForm">
+                <p:panelGrid columns="6" style="width:100%; max-width:760px;"
+                             columnClasses="label,value,label,value,label,value">
+
+                    <h:outputLabel value="#{msg['common.year']}" />
+                    <p:selectOneMenu value="#{summaryBB.year}">
+                        <f:selectItems value="#{summaryBB.availableYears}" var="y"
+                                       itemValue="#{y}" itemLabel="#{y}" />
+                    </p:selectOneMenu>
+
+                    <h:outputLabel value="#{msg['common.month']}" />
+                    <p:selectOneMenu value="#{summaryBB.month}">
+                        <f:selectItems value="#{summaryBB.availableMonths}" var="m"
+                                       itemValue="#{m.value}" itemLabel="#{m.label}" />
+                    </p:selectOneMenu>
+
+                    <h:outputLabel value="" />
+                    <p:commandButton value="#{msg['common.show']}"
+                                     icon="pi pi-search"
+                                     action="#{summaryBB.refresh}"
+                                     update="table messages" />
+                </p:panelGrid>
+
+                <p:messages id="messages" style="margin-top:12px;"/>
+            </h:form>
+
+            <h:form id="table">
+                <p:dataTable value="#{summaryBB.summary}" var="w"
+                             emptyMessage="#{msg['mod.summary.empty']}"
+                             paginator="true" rows="10"
+                             style="width:100%; margin-top:14px;">
+
+                    <p:column headerText="#{msg['common.employee']}">
+                        #{w.username}
+                    </p:column>
+
+                    <p:column headerText="#{msg['common.totalTime']}" style="width:180px;">
+                        #{w.hoursText}
+                    </p:column>
+
+                    <p:column headerText="#{msg['mod.summary.history']}" style="width:160px; text-align:center;">
+                        <p:commandButton value="#{msg['common.show']}"
+                                         icon="pi pi-clock"
+                                         styleClass="ui-button-outlined"
+                                         actionListener="#{summaryBB.openHistory(w)}"
+                                         update=":historyForm:historyDlg"
+                                         oncomplete="PF('historyDlg').show()"/>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+
+            <h:form id="historyForm">
+                <p:dialog id="historyDlg"
+                          widgetVar="historyDlg"
+                          header="#{msg['mod.summary.historyTitle']}"
+                          modal="true"
+                          width="900"
+                          closable="true"
+                          resizable="false">
+
+                    <h:panelGroup layout="block" style="margin-bottom:12px;">
+                        <h:outputText value="#{msg['common.employee']}: " />
+                        <h:outputText value="#{summaryBB.historyUsername}" style="font-weight:700;" />
+                        <h:outputText value="  |  " />
+                        <h:outputText value="#{msg['common.period']}: #{summaryBB.month}/#{summaryBB.year}" />
+                    </h:panelGroup>
+
+                    <p:dataTable value="#{summaryBB.historyShifts}" var="s"
+                                 emptyMessage="#{msg['mod.summary.historyEmpty']}"
+                                 paginator="true" rows="8"
+                                 style="width:100%;">
+
+                        <p:column headerText="#{msg['common.start']}" style="width:220px;">
+                            <h:outputText value="#{s.startTime}">
+                                <f:convertDateTime pattern="yyyy-MM-dd HH:mm" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="#{msg['common.end']}" style="width:220px;">
+                            <h:outputText value="#{s.endTime}">
+                                <f:convertDateTime pattern="yyyy-MM-dd HH:mm" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="#{msg['common.duration']}" style="width:140px;">
+                            #{summaryBB.shiftDurationText(s.startTime, s.endTime)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['common.status']}" style="width:140px;">
+                            <h:outputText value="#{empty s.endTime ? msg['status.open'] : msg['status.closed']}" />
+                        </p:column>
+
+                    </p:dataTable>
+                </p:dialog>
+            </h:form>
+
+        </h:panelGroup>
+    </ui:define>
+
+</ui:composition>
